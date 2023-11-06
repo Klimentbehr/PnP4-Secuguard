@@ -1,6 +1,5 @@
 #include "MyFrame.h"
 #include "FileTranslator.h"
-
 #include <wx/wfstream.h>
 #include <wx/txtstrm.h>
 #include <wx/filename.h>
@@ -79,18 +78,59 @@ void MyFrame::OnInput(wxCommandEvent& event) {
     wxFFileOutputStream output(outputFilePath);
     wxTextOutputStream textOutput(output);
     textOutput << randomContents;
-
-    // Close the files
-   // input.Close();
-    output.Close();
 }
 
 void MyFrame::OnDetranslate(wxCommandEvent& event) {
-    // Implement the logic for detranslation
+    wxFileDialog openFileDialog(this, "Choose a file to detranslate", "", "", "Text files (*.txt)|*.txt", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+
+    if (openFileDialog.ShowModal() == wxID_CANCEL) {
+        return;
+    }
+
+    wxString inputFilePath = openFileDialog.GetPath();
+
+    wxFFileInputStream input(inputFilePath);
+    wxTextInputStream textInput(input);
+
+    wxString fileContents;
+    while (!input.Eof()) {
+        wxString line = textInput.ReadLine();
+        fileContents += line + "\n";
+    }
+
+    wxString originalContents;
+    const wxString letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    const wxString reverseLetters = "XYZABCDEFGHIJKLMNOPQRSTUVWabcdefghijklmnopqrstuvwxyz";
+
+    for (size_t i = 0; i < fileContents.length(); i++) {
+        if (wxIsalpha(fileContents[i])) {
+            int index = reverseLetters.Find(fileContents[i]);
+            if (index != wxNOT_FOUND) {
+                originalContents += letters[index];
+            }
+            else {
+                originalContents += fileContents[i];
+            }
+        }
+        else {
+            originalContents += fileContents[i];
+        }
+    }
+
+    wxFileDialog saveFileDialog(this, "Choose a file to save the detranslated output", "", "", "Text files (*.txt)|*.txt", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+
+    if (saveFileDialog.ShowModal() == wxID_CANCEL) {
+        return;
+    }
+
+    wxString outputFilePath = saveFileDialog.GetPath();
+
+    wxFFileOutputStream output(outputFilePath);
+    wxTextOutputStream textOutput(output);
+    textOutput << originalContents;
 }
 
 void MyFrame::OnOutput(wxCommandEvent& event) {
-    // Prompt the user to select an output file.
     wxFileDialog saveFileDialog(this, "Choose a file to save the output", "", "", "Text files (*.txt)|*.txt", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 
     if (saveFileDialog.ShowModal() == wxID_CANCEL) {
@@ -99,18 +139,14 @@ void MyFrame::OnOutput(wxCommandEvent& event) {
 
     wxString outputFilePath = saveFileDialog.GetPath();
 
-    // Here, you should use 'outputFilePath' to save your output data.
-
-    // For example, you can create a file output stream and write to it:
     wxFFileOutputStream output(outputFilePath);
     wxTextOutputStream textOutput(output);
 
-    // Implement your saving logic here.
+   
 
-    // Close the file when you're done.
     output.Close();
 }
 
 void MyFrame::OnDropFiles(wxDropFilesEvent& event) {
-    // Handle dropped files if needed
+ 
 }
