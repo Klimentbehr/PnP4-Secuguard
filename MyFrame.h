@@ -13,6 +13,12 @@ public:
     void OnOutput(wxCommandEvent& event); // Added for output file selection
     void OnDropFiles(wxDropFilesEvent& event); // Added for drag and drop
 
+    // Declaration for TranslateText
+    void TranslateText(const wxString& inputPath, const wxString& outputPath);
+
+    // Declaration for DetranslateText
+    void DetranslateText(const wxString& inputPath, const wxString& outputPath);
+
 private:
     wxTextCtrl* fileLocationTextCtrl;
 };

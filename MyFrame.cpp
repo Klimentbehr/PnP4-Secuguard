@@ -1,5 +1,4 @@
 #include "MyFrame.h"
-#include "FileTranslator.h"
 #include <wx/wfstream.h>
 #include <wx/txtstrm.h>
 #include <wx/filename.h>
@@ -37,6 +36,69 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     SetSizer(mainSizer);
 }
 
+void MyFrame::TranslateText(const wxString& inputPath, const wxString& outputPath) {
+    const wxString letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    const wxString translation = "XYZABCDEFGHIJKLMNOPQRSTUVWxyzabcdefghijklmnopqrstuvw";
+
+    wxFFileInputStream input(inputPath);
+    wxTextInputStream textInput(input);
+
+    wxString fileContents;
+    while (!input.Eof()) {
+        wxString line = textInput.ReadLine();
+        fileContents += line + "\n";
+    }
+
+    wxString translatedContents;
+
+    for (size_t i = 0; i < fileContents.length(); i++) {
+        wxString character = fileContents[i];
+        int index = letters.Find(character);
+        if (index != wxNOT_FOUND) {
+            translatedContents += translation[index];
+        }
+        else {
+            translatedContents += character;
+        }
+    }
+
+    wxFFileOutputStream output(outputPath);
+    wxTextOutputStream textOutput(output);
+    textOutput << translatedContents;
+}
+
+
+void MyFrame::DetranslateText(const wxString& inputPath, const wxString& outputPath) {
+    const wxString letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    const wxString translation = "XYZABCDEFGHIJKLMNOPQRSTUVWxyzabcdefghijklmnopqrstuvw";
+
+    wxFFileInputStream input(inputPath);
+    wxTextInputStream textInput(input);
+
+    wxString fileContents;
+    while (!input.Eof()) {
+        wxString line = textInput.ReadLine();
+        fileContents += line + "\n";
+    }
+
+    wxString originalContents;
+
+    for (size_t i = 0; i < fileContents.length(); i++) {
+        wxString character = fileContents[i];
+        int index = translation.Find(character);
+        if (index != wxNOT_FOUND) {
+            originalContents += letters[index];
+        }
+        else {
+            originalContents += character;
+        }
+    }
+
+    wxFFileOutputStream output(outputPath);
+    wxTextOutputStream textOutput(output);
+    textOutput << originalContents;
+}
+
 void MyFrame::OnInput(wxCommandEvent& event) {
     wxFileDialog openFileDialog(this, "Choose a file to input", "", "", "Text files (*.txt)|*.txt", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
@@ -46,7 +108,7 @@ void MyFrame::OnInput(wxCommandEvent& event) {
 
     wxString inputFilePath = openFileDialog.GetPath();
 
-    wxFileDialog saveFileDialog(this, "Choose a file to save the output", "", "", "Text files (*.txt)|*.txt", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+    wxFileDialog saveFileDialog(this, "Choose a file to save the translated output", "", "", "Text files (*.txt)|*.txt", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 
     if (saveFileDialog.ShowModal() == wxID_CANCEL) {
         return;
@@ -54,30 +116,7 @@ void MyFrame::OnInput(wxCommandEvent& event) {
 
     wxString outputFilePath = saveFileDialog.GetPath();
 
-    wxFFileInputStream input(inputFilePath);
-    wxTextInputStream textInput(input);
-
-    wxString fileContents;
-    while (!input.Eof()) {
-        wxString line = textInput.ReadLine();
-        fileContents += line + "\n";
-    }
-
-    wxString randomContents;
-    const wxString letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    for (size_t i = 0; i < fileContents.length(); i++) {
-        if (wxIsalpha(fileContents[i])) {
-            int randomIndex = rand() % letters.length();
-            randomContents += letters[randomIndex];
-        }
-        else {
-            randomContents += fileContents[i];
-        }
-    }
-
-    wxFFileOutputStream output(outputFilePath);
-    wxTextOutputStream textOutput(output);
-    textOutput << randomContents;
+    TranslateText(inputFilePath, outputFilePath);
 }
 
 void MyFrame::OnDetranslate(wxCommandEvent& event) {
@@ -89,34 +128,6 @@ void MyFrame::OnDetranslate(wxCommandEvent& event) {
 
     wxString inputFilePath = openFileDialog.GetPath();
 
-    wxFFileInputStream input(inputFilePath);
-    wxTextInputStream textInput(input);
-
-    wxString fileContents;
-    while (!input.Eof()) {
-        wxString line = textInput.ReadLine();
-        fileContents += line + "\n";
-    }
-
-    wxString originalContents;
-    const wxString letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    const wxString reverseLetters = "XYZABCDEFGHIJKLMNOPQRSTUVWabcdefghijklmnopqrstuvwxyz";
-
-    for (size_t i = 0; i < fileContents.length(); i++) {
-        if (wxIsalpha(fileContents[i])) {
-            int index = reverseLetters.Find(fileContents[i]);
-            if (index != wxNOT_FOUND) {
-                originalContents += letters[index];
-            }
-            else {
-                originalContents += fileContents[i];
-            }
-        }
-        else {
-            originalContents += fileContents[i];
-        }
-    }
-
     wxFileDialog saveFileDialog(this, "Choose a file to save the detranslated output", "", "", "Text files (*.txt)|*.txt", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 
     if (saveFileDialog.ShowModal() == wxID_CANCEL) {
@@ -125,9 +136,7 @@ void MyFrame::OnDetranslate(wxCommandEvent& event) {
 
     wxString outputFilePath = saveFileDialog.GetPath();
 
-    wxFFileOutputStream output(outputFilePath);
-    wxTextOutputStream textOutput(output);
-    textOutput << originalContents;
+    DetranslateText(inputFilePath, outputFilePath);
 }
 
 void MyFrame::OnOutput(wxCommandEvent& event) {
@@ -142,11 +151,11 @@ void MyFrame::OnOutput(wxCommandEvent& event) {
     wxFFileOutputStream output(outputFilePath);
     wxTextOutputStream textOutput(output);
 
-   
+    // Implement your saving logic here.
 
     output.Close();
 }
 
 void MyFrame::OnDropFiles(wxDropFilesEvent& event) {
- 
+    // Handle dropped files if needed
 }
