@@ -4,7 +4,7 @@
 #include <wx/filename.h>
 
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
-    : wxFrame(NULL, wxID_ANY, title, pos, size) {
+    : wxFrame(NULL, wxID_ANY, title, pos, size), seed(0) {
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
 
     wxPanel* panel = new wxPanel(this, wxID_ANY);
@@ -38,7 +38,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
 void MyFrame::TranslateText(const wxString& inputPath, const wxString& outputPath) {
     const wxString letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    const wxString translation = "XYZABCDEFGHIJKLMNOPQRSTUVWxyzabcdefghijklmnopqrstuvw";
+    wxString translation = GenerateTranslatedAlphabet(seed);
 
     wxFFileInputStream input(inputPath);
     wxTextInputStream textInput(input);
@@ -67,10 +67,9 @@ void MyFrame::TranslateText(const wxString& inputPath, const wxString& outputPat
     textOutput << translatedContents;
 }
 
-
 void MyFrame::DetranslateText(const wxString& inputPath, const wxString& outputPath) {
     const wxString letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    const wxString translation = "XYZABCDEFGHIJKLMNOPQRSTUVWxyzabcdefghijklmnopqrstuvw";
+    wxString translation = GenerateTranslatedAlphabet(seed);
 
     wxFFileInputStream input(inputPath);
     wxTextInputStream textInput(input);
@@ -116,7 +115,16 @@ void MyFrame::OnInput(wxCommandEvent& event) {
 
     wxString outputFilePath = saveFileDialog.GetPath();
 
-    TranslateText(inputFilePath, outputFilePath);
+    // Ask the user for the seed
+    wxTextEntryDialog dialog(this, "Enter the seed for translation:", "Seed Input", "0", wxOK | wxCANCEL);
+    if (dialog.ShowModal() == wxID_OK) {
+        wxString seedStr = dialog.GetValue();
+        long seedValue;
+        if (seedStr.ToLong(&seedValue)) {
+            SetSeed(seedValue);
+            TranslateText(inputFilePath, outputFilePath);
+        }
+    }
 }
 
 void MyFrame::OnDetranslate(wxCommandEvent& event) {
@@ -136,7 +144,16 @@ void MyFrame::OnDetranslate(wxCommandEvent& event) {
 
     wxString outputFilePath = saveFileDialog.GetPath();
 
-    DetranslateText(inputFilePath, outputFilePath);
+    // Ask the user for the seed
+    wxTextEntryDialog dialog(this, "Enter the seed for detranslation:", "Seed Input", "0", wxOK | wxCANCEL);
+    if (dialog.ShowModal() == wxID_OK) {
+        wxString seedStr = dialog.GetValue();
+        long seedValue;
+        if (seedStr.ToLong(&seedValue)) {
+            SetSeed(seedValue);
+            DetranslateText(inputFilePath, outputFilePath);
+        }
+    }
 }
 
 void MyFrame::OnOutput(wxCommandEvent& event) {
@@ -158,4 +175,20 @@ void MyFrame::OnOutput(wxCommandEvent& event) {
 
 void MyFrame::OnDropFiles(wxDropFilesEvent& event) {
     // Handle dropped files if needed
+}
+
+void MyFrame::SetSeed(int newSeed) {
+    seed = newSeed;
+}
+
+wxString MyFrame::GenerateTranslatedAlphabet(int seed) {
+    wxString originalAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    wxString translatedAlphabet;
+
+    for (size_t i = 0; i < originalAlphabet.length(); i++) {
+        int index = (i + seed) % originalAlphabet.length();
+        translatedAlphabet += originalAlphabet[index];
+    }
+
+    return translatedAlphabet;
 }

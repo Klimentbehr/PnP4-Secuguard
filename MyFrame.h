@@ -3,8 +3,6 @@
 #include <iostream>
 #include <fstream>
 
-class FileTranslator;
-
 class MyFrame : public wxFrame {
 public:
     MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
@@ -19,6 +17,13 @@ public:
     // Declaration for DetranslateText
     void DetranslateText(const wxString& inputPath, const wxString& outputPath);
 
+    // Declaration for SetSeed
+    void SetSeed(int newSeed);
+
+    // Declaration for GenerateTranslatedAlphabet
+    wxString GenerateTranslatedAlphabet(int seed);
+
 private:
+    int seed;
     wxTextCtrl* fileLocationTextCtrl;
 };
