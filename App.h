@@ -5,7 +5,7 @@ class MyApp : public wxApp {
 public:
     virtual bool OnInit() {
         // Create the main frame
-        MyFrame* frame = new MyFrame("File Translator", wxPoint(50, 50), wxSize(400, 150));
+        MyFrame* frame = new MyFrame("SecuGaurd", wxPoint(50, 50), wxSize(400, 150));
 
         // Show the main frame
         frame->Show(true);

@@ -20,13 +20,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
-    <ClInclude Include="FileTranslator.h" />
-    <ClInclude Include="Header.h" />
     <ClInclude Include="MyFrame.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="App.cpp" />
-    <ClCompile Include="FileTranslator.cpp" />
     <ClCompile Include="MyFrame.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

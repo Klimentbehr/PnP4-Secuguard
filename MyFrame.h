@@ -6,21 +6,16 @@
 class MyFrame : public wxFrame {
 public:
     MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
-    void OnInput(wxCommandEvent& event); // Added for input file selection
-    void OnDetranslate(wxCommandEvent& event); // Added for detranslation
-    void OnOutput(wxCommandEvent& event); // Added for output file selection
-    void OnDropFiles(wxDropFilesEvent& event); // Added for drag and drop
+    void OnInput(wxCommandEvent& event);
+    void OnDetranslate(wxCommandEvent& event);
+    void OnOutput(wxCommandEvent& event);
+    void OnBulkTranslate(wxCommandEvent& event); // Added for bulk translation
+    void OnBulkDetranslate(wxCommandEvent& event); // Added for bulk detranslation
+    void OnDropFiles(wxDropFilesEvent& event);
 
-    // Declaration for TranslateText
     void TranslateText(const wxString& inputPath, const wxString& outputPath);
-
-    // Declaration for DetranslateText
     void DetranslateText(const wxString& inputPath, const wxString& outputPath);
-
-    // Declaration for SetSeed
     void SetSeed(int newSeed);
-
-    // Declaration for GenerateTranslatedAlphabet
     wxString GenerateTranslatedAlphabet(int seed);
 
 private:
